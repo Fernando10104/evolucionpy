@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>404 - Página no encontrada</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+            body {
+                background: linear-gradient(135deg, #f5f7fa 0%, #e3e6ff 100%);
+                color: #222842;
+                font-family: 'Raleway', 'Open Sans', Arial, sans-serif;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                margin: 0;
+            }
+            .container {
+                text-align: center;
+                padding: 2.5rem 1.5rem;
+                border-radius: 1.5rem;
+                background: rgba(255,255,255,0.95);
+                box-shadow: 0 8px 32px rgba(70,62,221,0.10);
+                max-width: 420px;
+                backdrop-filter: blur(2px);
+            }
+            h1 {
+                font-size: 5rem;
+                margin: 0 0 1rem 0;
+                color: #463EDD;
+                letter-spacing: 2px;
+                font-family: 'Raleway', 'Open Sans', Arial, sans-serif;
+                font-weight: 700;
+                text-shadow: 0 2px 12px #e3e6ff;
+            }
+            h2 {
+                font-size: 1.7rem;
+                margin-bottom: 1rem;
+                font-weight: 600;
+                color: #222842;
+            }
+            p {
+                margin-bottom: 2rem;
+                color: #4447DB;
+                font-size: 1.1rem;
+            }
+            a {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.85rem 1.7rem;
+                background: linear-gradient(90deg, #463EDD 60%, #00d0ab 100%);
+                color: #fff;
+                border-radius: 1rem;
+                text-decoration: none;
+                font-weight: 600;
+                font-family: 'Raleway', 'Open Sans', Arial, sans-serif;
+                box-shadow: 0 2px 8px rgba(70,62,221,0.08);
+                transition: background 0.2s, box-shadow 0.2s;
+            }
+            a:hover {
+                background: linear-gradient(90deg, #3c21c9 60%, #00b897 100%);
+                box-shadow: 0 4px 16px rgba(70,62,221,0.15);
+            }
+            .icon {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+            @media (max-width: 500px) {
+                .container {
+                    padding: 1.2rem 0.5rem;
+                    max-width: 98vw;
+                }
+                h1 {
+                    font-size: 3.2rem;
+                }
+                h2 {
+                    font-size: 1.2rem;
+                }
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+            <h1>404</h1>
+            <h2>Página no encontrada</h2>
+            <p>Lo sentimos, la página que buscas no existe o ha sido movida.</p>
+            <a href="/">
+                Volver al inicio
+            </a>
+    </div>
+</body>
+</html>
