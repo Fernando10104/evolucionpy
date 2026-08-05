@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solicitá tu crédito | Evolucion py</title>
+    <link rel="icon" href="https://evolucionpy.com.py/images/logo_calidad.png" type="image/png">
+    <meta name="description" content="Completá tu solicitud de crédito en menos de 2 minutos. 100% online." />
+    <meta name="author" content="Evolucion py" />
+    <meta name="robots" content="noindex" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Solicitá tu crédito | Evolucion py" />
+    <meta property="og:description" content="Completá tu solicitud de crédito en menos de 2 minutos. 100% online." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://evolucionpy.com.py/images/logo_calidad.png" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&family=Open+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#222842',
+                        brand: '#463EDD',
+                        'brand-dark': '#3c21c9',
+                        'brand-soft': '#e3e6ff',
+                        secondary: '#1877F2',
+                        tertiary: '#f5f7fa',
+                        success: '#2E7D5B',
+                        muted: '#66737A',
+                    },
+                    fontFamily: {
+                        raleway: ['Raleway', 'sans-serif'],
+                        opensans: ['Open Sans', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Raleway', system-ui, Arial, sans-serif;
+        }
+
+        main {
+            flex: 1 0 auto;
+        }
+
+        footer {
+            margin-top: auto;
+        }
+
+        /* Transición entre pasos */
+        .step {
+            display: none;
+        }
+        .step.is-active {
+            display: block;
+            animation: stepIn .35s ease-out;
+        }
+        @keyframes stepIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tarjetas de opción (radio button estilizado) */
+        .option input { position: absolute; opacity: 0; width: 0; height: 0; }
+        .option-box {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            min-height: 52px;
+            padding: .875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fff;
+            cursor: pointer;
+            transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
+        }
+        .option-box:hover { border-color: #b9b5f5; background: #fafaff; }
+        .option input:focus-visible + .option-box {
+            outline: 2px solid #463EDD;
+            outline-offset: 2px;
+        }
+        .option input:checked + .option-box {
+            border-color: #463EDD;
+            background: #f3f2ff;
+            box-shadow: 0 2px 10px rgba(70, 62, 221, .12);
+        }
+        .option-dot {
+            flex-shrink: 0;
+            width: 20px; height: 20px;
+            border: 2px solid #cbd5e1;
+            border-radius: 999px;
+            position: relative;
+            transition: border-color .18s ease;
+        }
+        .option input:checked + .option-box .option-dot { border-color: #463EDD; }
+        .option input:checked + .option-box .option-dot::after {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border-radius: 999px;
+            background: #463EDD;
+        }
+
+        /* Campos */
+        .field {
+            width: 100%;
+            height: 50px;
+            padding: 0 .95rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fff;
+            font-size: 1rem;
+            color: #111827;
+            transition: border-color .18s ease, box-shadow .18s ease;
+        }
+        .field:focus {
+            outline: none;
+            border-color: #463EDD;
+            box-shadow: 0 0 0 3px rgba(70, 62, 221, .14);
+        }
+        .field.has-error { border-color: #dc2626; }
+        .field.has-error:focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, .14); }
+        .error-msg { display: none; }
+        .error-msg.show { display: block; }
+
+        /* Botón principal */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            width: 100%;
+            min-height: 50px;
+            padding: 0 1.25rem;
+            border-radius: 12px;
+            background: #463EDD;
+            color: #fff;
+            font-weight: 600;
+            letter-spacing: .02em;
+            transition: background-color .2s ease, transform .12s ease, opacity .2s ease;
+        }
+        .btn-primary:hover { background: #3c21c9; }
+        .btn-primary:active { transform: scale(.99); }
+        .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+        .btn-whatsapp {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            min-height: 50px;
+            padding: 0 1.5rem;
+            border-radius: 12px;
+            background: #25D366;
+            color: #fff;
+            font-weight: 600;
+            transition: background-color .2s ease;
+        }
+        .btn-whatsapp:hover { background: #20ba57; }
+
+        /* Modal */
+        #modal.is-open { display: flex; }
+        #modal .modal-card { animation: modalIn .28s ease-out; }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(24px) scale(.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .spinner {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,.4);
+            border-top-color: #fff;
+            border-radius: 999px;
+            animation: spin .7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (prefers-reduced-motion: reduce) {
+            .step.is-active, #modal .modal-card { animation: none; }
+        }
+    </style>
+</head>
+
+<body class="bg-tertiary text-primary">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-white shadow-md">
+        <div class="container mx-auto px-6 md:px-8 py-3 flex justify-between items-center">
+            <a href="index.html" class="flex items-center">
+                <span class="text-xl md:text-2xl font-bold" style="color:#4447DB;">Evolucion py</span>
+            </a>
+            <nav class="hidden md:block">
+                <ul class="flex space-x-8">
+                    <li><a href="index.html#inicio" class="font-medium hover:text-brand transition-colors">Inicio</a></li>
+                    <li><a href="index.html#ventajas" class="font-medium hover:text-brand transition-colors">Ventajas</a></li>
+                    <li><a href="index.html#como_funciona" class="font-medium hover:text-brand transition-colors">¿Cómo funciona?</a></li>
+                    <li><a href="index.html#contacto" class="font-medium hover:text-brand transition-colors">Contacto</a></li>
+                </ul>
+            </nav>
+            <a href="index.html" class="md:hidden text-sm font-semibold text-muted hover:text-brand transition-colors">
+                ← Volver
+            </a>
+        </div>
+    </header>
+
+    <main class="py-10 md:py-16 px-4">
+        <!-- Encabezado -->
+        <div class="max-w-xl mx-auto text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-brand mb-3">Solicitá tu crédito</h1>
+            <p class="text-muted text-base md:text-lg">
+                Respondé unas pocas preguntas y un asesor se pondrá en contacto con vos.
+                Te lleva menos de 2 minutos.
+            </p>
+        </div>
+
+        <!-- Tarjeta del formulario -->
+        <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-xl border border-brand-soft overflow-hidden">
+
+            <!-- Progreso -->
+            <div id="progressWrap" class="px-6 md:px-8 pt-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span id="progressLabel" class="text-sm font-semibold text-brand">Paso 1 de 4</span>
+                    <span id="progressPct" class="text-sm text-muted">25%</span>
+                </div>
+                <div class="h-2 w-full bg-brand-soft rounded-full overflow-hidden">
+                    <div id="progressBar" class="h-full bg-brand rounded-full transition-all duration-500 ease-out" style="width:25%"></div>
+                </div>
+            </div>
+
+            <form id="solicitudForm" class="p-6 md:p-8" novalidate>
+
+                <!-- PASO 1 — INFORMCONF -->
+                <section class="step is-active" data-step="informconf" aria-labelledby="q-informconf">
+                    <h2 id="q-informconf" class="text-xl md:text-2xl font-bold mb-2">¿Tenés Informconf?</h2>
+                    <p class="text-muted text-sm mb-5">Nos referís a si figurás actualmente con deudas informadas.</p>
+
+                    <div class="space-y-3" role="radiogroup" aria-labelledby="q-informconf">
+                        <label class="option block">
+                            <input type="radio" name="informconf" value="si" />
+                            <span class="option-box"><span class="option-dot"></span><span class="font-semibold">Sí</span></span>
+                        </label>
+                        <label class="option block">
+                            <input type="radio" name="informconf" value="no" />
+                            <span class="option-box"><span class="option-dot"></span><span class="font-semibold">No</span></span>
+                        </label>
+                    </div>
+                    <p class="error-msg text-sm text-red-600 mt-3" data-error-for="informconf" role="alert"></p>
+                </section>
+
+                <!-- PASO 2 — SITUACIÓN LABORAL -->
+                <section class="step" data-step="ocupacion" aria-labelledby="q-ocupacion">
+                    <h2 id="q-ocupacion" class="text-xl md:text-2xl font-bold mb-2">¿A qué te dedicás?</h2>
+                    <p class="text-muted text-sm mb-5">Elegí la opción que mejor describa tu situación actual.</p>
+
+                    <div class="space-y-3" role="radiogroup" aria-labelledby="q-ocupacion">
+                        <label class="option block">
+                            <input type="radio" name="ocupacion" value="ips" />
+                            <span class="option-box"><span class="option-dot"></span><span class="font-semibold">Tengo IPS — Más de 6 aportes</span></span>
+                        </label>
+                        <label class="option block">
+                            <input type="radio" name="ocupacion" value="funcionario_publico" />
+                            <span class="option-box"><span class="option-dot"></span><span class="font-semibold">Soy funcionario público</span></span>
+                        </label>
+                        <label class="option block">
+                            <input type="radio" name="ocupacion" value="jubilado" />
+                            <span class="option-box"><span class="option-dot"></span><span class="font-semibold">Soy jubilado</span></span>
+                        </label>
+                        <label class="option block">
+                            <input type="radio" name="ocupacion" value="factura_legal" />
+                            <span class="option-box"><span class="option-dot"></span><span class="font-semibold">Emito factura legal</span></span>
+                        </label>
+                        <label class="option block">
+                            <input type="radio" name="ocupacion" value="ninguna" />
+                            <span class="option-box"><span class="option-dot"></span><span class="font-semibold">Ninguna de las anteriores</span></span>
+                        </label>
+                    </div>
+                    <p class="error-msg text-sm text-red-600 mt-3" data-error-for="ocupacion" role="alert"></p>
+                </section>
+
+                <!-- PASO 2.1 — DETALLE FACTURA LEGAL -->
+                <section class="step" data-step="detalle_factura" aria-labelledby="q-detalle">
+                    <h2 id="q-detalle" class="text-xl md:text-2xl font-bold mb-2">¿A qué te dedicás exactamente?</h2>
+                    <p class="text-muted text-sm mb-5">Contanos un poco más sobre tu actividad.</p>
+
+                    <div class="space-y-3" role="radiogroup" aria-labelledby="q-detalle">
+                        <label class="option block">
+                            <input type="radio" name="detalle_factura" value="asalariado_iva" />
+                            <span class="option-box"><span class="option-dot"></span><span class="font-semibold">Soy asalariado con IVA</span></span>
+                        </label>
+                        <label class="option block">
+                            <input type="radio" name="detalle_factura" value="comerciante" />
+                            <span class="option-box"><span class="option-dot"></span><span class="font-semibold">Comerciante</span></span>
+                        </label>
+                        <label class="option block">
+                            <input type="radio" name="detalle_factura" value="profesional_independiente" />
+                            <span class="option-box"><span class="option-dot"></span><span class="font-semibold">Profesional independiente</span></span>
+                        </label>
+                    </div>
+                    <p class="error-msg text-sm text-red-600 mt-3" data-error-for="detalle_factura" role="alert"></p>
+                </section>
+
+                <!-- PASO 3 — MONTO -->
+                <section class="step" data-step="monto" aria-labelledby="q-monto">
+                    <h2 id="q-monto" class="text-xl md:text-2xl font-bold mb-2">¿Qué monto necesitás?</h2>
+                    <p class="text-muted text-sm mb-5">Es un monto estimado. El asesor te confirma las condiciones finales.</p>
+
+                    <!-- Las opciones se generan desde CONFIG.MONTOS -->
+                    <div id="montosContainer" class="space-y-3" role="radiogroup" aria-labelledby="q-monto"></div>
+
+                    <div id="montoOtroWrap" class="mt-3 hidden">
+                        <label for="montoOtro" class="block text-sm font-semibold mb-1.5">Indicá el monto en guaraníes</label>
+                        <input
+                            type="text"
+                            id="montoOtro"
+                            name="montoOtro"
+                            class="field"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            placeholder="Ej: 7.000.000"
+                        />
+                    </div>
+
+                    <p class="error-msg text-sm text-red-600 mt-3" data-error-for="monto" role="alert"></p>
+                </section>
+
+                <!-- PASO 4 — CONTACTO -->
+                <section class="step" data-step="contacto" aria-labelledby="q-contacto">
+                    <h2 id="q-contacto" class="text-xl md:text-2xl font-bold mb-2">¿Cómo te contactamos?</h2>
+                    <p class="text-muted text-sm mb-5">Usamos estos datos solo para comunicarnos con vos por tu solicitud.</p>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label for="nombre" class="block text-sm font-semibold mb-1.5">Nombre</label>
+                            <input type="text" id="nombre" name="nombre" class="field" autocomplete="given-name" placeholder="Juan" maxlength="60" />
+                            <p class="error-msg text-sm text-red-600 mt-1.5" data-error-for="nombre" role="alert"></p>
+                        </div>
+
+                        <div>
+                            <label for="apellido" class="block text-sm font-semibold mb-1.5">Apellido</label>
+                            <input type="text" id="apellido" name="apellido" class="field" autocomplete="family-name" placeholder="González" maxlength="60" />
+                            <p class="error-msg text-sm text-red-600 mt-1.5" data-error-for="apellido" role="alert"></p>
+                        </div>
+
+                        <div>
+                            <label for="telefono" class="block text-sm font-semibold mb-1.5">Número de WhatsApp</label>
+                            <div class="flex items-stretch gap-2">
+                                <span class="flex items-center px-3 rounded-xl bg-tertiary border-2 border-gray-200 text-muted font-semibold text-sm">+595</span>
+                                <input type="tel" id="telefono" name="telefono" class="field flex-1" inputmode="numeric" autocomplete="tel-national" placeholder="0981 123456" maxlength="15" />
+                            </div>
+                            <p class="text-xs text-muted mt-1.5">Ingresá tu número de celular paraguayo, con o sin el 0 inicial.</p>
+                            <p class="error-msg text-sm text-red-600 mt-1.5" data-error-for="telefono" role="alert"></p>
+                        </div>
+
+                        <div>
+                            <label for="ciudad" class="block text-sm font-semibold mb-1.5">Ciudad</label>
+                            <select id="ciudad" name="ciudad" class="field"></select>
+                            <p class="error-msg text-sm text-red-600 mt-1.5" data-error-for="ciudad" role="alert"></p>
+                        </div>
+
+                        <div id="ciudadOtraWrap" class="hidden">
+                            <label for="ciudadOtra" class="block text-sm font-semibold mb-1.5">Escribí tu ciudad</label>
+                            <input type="text" id="ciudadOtra" name="ciudadOtra" class="field" placeholder="Ej: Yby Yaú" maxlength="60" />
+                            <p class="error-msg text-sm text-red-600 mt-1.5" data-error-for="ciudadOtra" role="alert"></p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANTALLA FINAL — APROBADO -->
+                <section class="step" data-step="exito" aria-labelledby="q-exito">
+                    <div class="text-center py-2">
+                        <div class="w-16 h-16 mx-auto mb-5 rounded-full bg-[#e6f4ee] flex items-center justify-center">
+                            <svg class="w-8 h-8 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <h2 id="q-exito" class="text-2xl font-bold text-success mb-3">¡Solicitud registrada!</h2>
+                        <p class="text-muted mb-2">Gracias por tomarte el tiempo de llenar el formulario.</p>
+                        <p class="text-muted mb-7">
+                            Un asesor se pondrá en contacto con usted en la brevedad.
+                            Para una atención más rápida, favor escriba directamente al WhatsApp.
+                        </p>
+                        <a id="waExito" href="#" target="_blank" rel="noopener noreferrer" class="btn-whatsapp w-full">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M20.465 3.54a12.252 12.252 0 00-8.733-3.617c-6.78 0-12.293 5.513-12.293 12.293 0 2.164.567 4.278 1.645 6.147L0 24l6.193-1.635a12.204 12.204 0 005.858 1.494h.005c6.781 0 12.293-5.513 12.293-12.293a12.252 12.252 0 00-3.584-8.728l-.3-.298z"/>
+                            </svg>
+                            Escribir por WhatsApp
+                        </a>
+                        <a href="index.html" class="block mt-4 text-sm font-semibold text-muted hover:text-brand transition-colors">
+                            Volver al inicio
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Navegación -->
+                <div id="navWrap" class="mt-7">
+                    <button type="submit" id="btnContinuar" class="btn-primary">
+                        <span id="btnContinuarText">CONTINUAR</span>
+                        <span id="btnSpinner" class="spinner hidden"></span>
+                    </button>
+                    <button type="button" id="btnAtras" class="w-full mt-3 text-sm font-semibold text-muted hover:text-brand transition-colors hidden">
+                        ← Volver a la pregunta anterior
+                    </button>
+                </div>
+
+                <p id="errorEnvio" class="hidden mt-4 text-sm text-red-600 text-center" role="alert"></p>
+            </form>
+        </div>
+
+        <p class="max-w-xl mx-auto text-center text-xs text-muted mt-6 px-4">
+            Tus datos se utilizan únicamente para gestionar esta solicitud de crédito.
+            No los compartimos con terceros ajenos al proceso.
+        </p>
+    </main>
+
+    <!-- Modal de rechazo -->
+    <div id="modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/60 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-card bg-white rounded-2xl shadow-2xl max-w-md w-full p-7 text-center">
+            <div class="w-14 h-14 mx-auto mb-5 rounded-full bg-brand-soft flex items-center justify-center">
+                <svg class="w-7 h-7 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h2 id="modalTitle" class="text-xl font-bold mb-4">Gracias por tu interés en nuestra empresa</h2>
+            <p class="text-muted mb-2">
+                Según tus respuestas al formulario, la solicitud no va a ser factible.
+            </p>
+            <p class="text-muted mb-7">
+                Si creés que se trata de un error, no dudes en hacérnoslo saber escribiéndonos al WhatsApp.
+            </p>
+            <a id="waRechazo" href="#" target="_blank" rel="noopener noreferrer" class="btn-whatsapp w-full">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M20.465 3.54a12.252 12.252 0 00-8.733-3.617c-6.78 0-12.293 5.513-12.293 12.293 0 2.164.567 4.278 1.645 6.147L0 24l6.193-1.635a12.204 12.204 0 005.858 1.494h.005c6.781 0 12.293-5.513 12.293-12.293a12.252 12.252 0 00-3.584-8.728l-.3-.298z"/>
+                </svg>
+                Escribir por WhatsApp
+            </a>
+            <a href="index.html" class="block mt-4 text-sm font-semibold text-muted hover:text-brand transition-colors">
+                Volver al inicio
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-10">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Evolucion py</h3>
+                    <p class="text-gray-300">
+                        Créditos rápidos y seguros en Paraguay. Confianza, cercanía y soluciones a tu medida.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contacto</h3>
+                    <p class="mb-2">
+                        <strong>Teléfono:</strong> 0974 963693
+                    </p>
+                    <p class="mb-2">
+                        <strong>Área de cobertura:</strong> Todo el territorio nacional.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Síguenos</h3>
+                    <div class="flex space-x-4">
+                        <a href="http://facebook.com/profile.php?id=61575553640441&amp;rdid=M4xikefrL2CflyWx&amp;share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F19UWq7TzXW%2F#" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-transparent hover:bg-blue-100 flex items-center justify-center transition-colors">
+                            <svg class="w-6 h-6 text-white hover:text-blue-600" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+
+                        <a href="https://wa.me/595974963693" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-transparent hover:bg-green-100 flex items-center justify-center transition-colors">
+                            <svg class="w-6 h-6 text-white hover:text-green-600" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M20.465 3.54a12.252 12.252 0 00-8.733-3.617c-6.78 0-12.293 5.513-12.293 12.293 0 2.164.567 4.278 1.645 6.147L0 24l6.193-1.635a12.204 12.204 0 005.858 1.494h.005c6.781 0 12.293-5.513 12.293-12.293a12.252 12.252 0 00-3.584-8.728l-.3-.298zm-8.733 18.901h-.005a10.142 10.142 0 01-5.166-1.413l-.371-.22-3.84 1.009.98-3.637-.251-.396a10.22 10.22 0 01-1.559-5.44c0-5.635 4.587-10.221 10.227-10.221a10.15 10.15 0 017.235 2.997 10.15 10.15 0 012.963 7.236c0 5.635-4.587 10.221-10.223 10.221zm5.607-7.655c-.308-.154-1.823-.9-2.106-1.004-.283-.103-.489-.154-.695.154-.205.308-.797.983-.977 1.189-.18.205-.36.231-.668.077-.307-.154-1.3-.478-2.477-1.525-.915-.816-1.533-1.823-1.713-2.131-.18-.308-.019-.475.135-.629.138-.138.308-.36.462-.54.154-.18.205-.308.308-.513.103-.206.051-.386-.026-.54-.077-.154-.695-1.674-.952-2.294-.251-.602-.505-.514-.695-.524a12.452 12.452 0 00-.617-.01c-.219 0-.566.077-.86.386-.295.308-1.119 1.093-1.119 2.664 0 1.572 1.145 3.093 1.299 3.299.154.205 2.158 3.299 5.234 4.622 1.162.5 2.046.67 2.743.863.713.227 1.36.195 1.872.118.57-.085 1.755-.719 2-1.412.245-.693.245-1.29.171-1.412-.075-.128-.281-.205-.588-.359z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+
+                        <a href="https://www.instagram.com/evo_py_/" target="_blank" rel="noopener noreferrer" class="w-10 h-10 flex items-center justify-center rounded-full bg-transparent hover:bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-400">
+                    © <span id="currentYear">2026</span> Evolucion py. Todos los derechos reservados.
+                </p>
+            </div>
+        </div>
+        <a href="https://wa.me/595974963693" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill-rule="evenodd" d="M20.465 3.54a12.252 12.252 0 00-8.733-3.617c-6.78 0-12.293 5.513-12.293 12.293 0 2.164.567 4.278 1.645 6.147L0 24l6.193-1.635a12.204 12.204 0 005.858 1.494h.005c6.781 0 12.293-5.513 12.293-12.293a12.252 12.252 0 00-3.584-8.728l-.3-.298zm-8.733 18.901h-.005a10.142 10.142 0 01-5.166-1.413l-.371-.22-3.84 1.009.98-3.637-.251-.396a10.22 10.22 0 01-1.559-5.44c0-5.635 4.587-10.221 10.227-10.221a10.15 10.15 0 017.235 2.997 10.15 10.15 0 012.963 7.236c0 5.635-4.587 10.221-10.223 10.221zm5.607-7.655c-.308-.154-1.823-.9-2.106-1.004-.283-.103-.489-.154-.695.154-.205.308-.797.983-.977 1.189-.18.205-.36.231-.668.077-.307-.154-1.3-.478-2.477-1.525-.915-.816-1.533-1.823-1.713-2.131-.18-.308-.019-.475.135-.629.138-.138.308-.36.462-.54.154-.18.205-.308.308-.513.103-.206.051-.386-.026-.54-.077-.154-.695-1.674-.952-2.294-.251-.602-.505-.514-.695-.524a12.452 12.452 0 00-.617-.01c-.219 0-.566.077-.86.386-.295.308-1.119 1.093-1.119 2.664 0 1.572 1.145 3.093 1.299 3.299.154.205 2.158 3.299 5.234 4.622 1.162.5 2.046.67 2.743.863.713.227 1.36.195 1.872.118.57-.085 1.755-.719 2-1.412.245-.693.245-1.29.171-1.412-.075-.128-.281-.205-.588-.359z" clip-rule="evenodd"></path>
+            </svg>
+        </a>
+    </footer>
+
+    <!-- Botón flotante WhatsApp -->
+    <a id="waFlotante" href="#" target="_blank" rel="noopener noreferrer"
+       aria-label="Escribinos por WhatsApp"
+       class="fixed bottom-6 right-6 z-30 bg-green-500 hover:bg-green-600 text-white rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.465 3.54a12.252 12.252 0 00-8.733-3.617c-6.78 0-12.293 5.513-12.293 12.293 0 2.164.567 4.278 1.645 6.147L0 24l6.193-1.635a12.204 12.204 0 005.858 1.494h.005c6.781 0 12.293-5.513 12.293-12.293a12.252 12.252 0 00-3.584-8.728l-.3-.298z"/>
+        </svg>
+    </a>
+
+    <script>
+    /* =========================================================================
+       CONFIGURACIÓN — TODO lo que el cliente puede querer cambiar está acá.
+       ========================================================================= */
+    const CONFIG = {
+        // Endpoint del backend FastAPI que recibe SOLO solicitudes válidas.
+        // En producción reemplazar por la URL real, ej: 'https://api.evolucionpy.com.py/api/solicitudes'
+        API_URL: 'https://api.evolucionpy.com.py/api/solicitudes',
+
+        // Número de WhatsApp de la empresa (formato internacional, sin + ni espacios)
+        WHATSAPP: '595974963693',
+
+        // Mensajes precargados de WhatsApp
+        WA_MSG_RECHAZO: 'Hola, completé el formulario de solicitud y me indicó que no es factible. Quisiera consultar mi caso.',
+        WA_MSG_EXITO: 'Hola, acabo de enviar mi solicitud de crédito por la web. Quisiera avanzar con la gestión.',
+        WA_MSG_GENERAL: 'Hola, me interesa su servicio. Quisiera recibir más información.',
+
+        // Montos ofrecidos (en guaraníes). PENDIENTE DE CONFIRMACIÓN DEL CLIENTE:
+        // ajustar libremente esta lista; el formulario se regenera solo.
+        MONTOS: [2000000, 5000000, 10000000, 15000000, 20000000, 30000000],
+
+        // Permitir que el usuario escriba un monto distinto a los predeterminados
+        PERMITIR_OTRO_MONTO: true,
+        MONTO_MINIMO: 1000000,
+        MONTO_MAXIMO: 50000000,
+
+        // Ciudades sugeridas. Agregar o quitar según la cobertura comercial.
+        CIUDADES: [
+            'Asunción', 'Ciudad del Este', 'San Lorenzo', 'Luque', 'Capiatá',
+            'Lambaré', 'Fernando de la Mora', 'Limpio', 'Ñemby', 'Encarnación',
+            'Mariano Roque Alonso', 'Pedro Juan Caballero', 'Itauguá', 'Villa Elisa',
+            'Coronel Oviedo', 'Presidente Franco', 'Concepción', 'Villarrica',
+            'Caaguazú', 'San Antonio', 'Itá', 'Areguá', 'Paraguarí', 'Pilar'
+        ],
+    };
+
+    /* =========================================================================
+       REGLAS DE NEGOCIO — deben estar replicadas en el backend (FastAPI).
+       El frontend nunca es la única barrera.
+       ========================================================================= */
+    const REGLAS = {
+        // Tener Informconf rechaza la solicitud
+        informconfRechaza: 'si',
+        // Ocupaciones que rechazan
+        ocupacionesRechazadas: ['ninguna'],
+        // Ocupación que abre el paso 2.1
+        ocupacionConDetalle: 'factura_legal',
+        // Detalles de factura legal que rechazan
+        detallesRechazados: ['comerciante'],
+    };
+
+    /* =========================================================================
+       ESTADO — vive SOLO en el navegador hasta que la solicitud es válida.
+       ========================================================================= */
+    const state = {
+        informconf: null,
+        ocupacion: null,
+        detalle_factura: null,
+        monto: null,
+        nombre: '',
+        apellido: '',
+        telefono: '',
+        ciudad: '',
+    };
+
+    let historial = [];      // pasos ya recorridos, para el botón "Volver"
+    let pasoActual = 'informconf';
+    let flujoFinalizado = false;
+    let enviando = false;
+
+    /* ========================= Helpers ========================= */
+
+    const $  = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    const formatoGs = (n) => new Intl.NumberFormat('es-PY').format(n);
+
+    const waLink = (mensaje) =>
+        `https://wa.me/${CONFIG.WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
+
+    function mostrarError(campo, mensaje) {
+        const p = document.querySelector(`[data-error-for="${campo}"]`);
+        if (p) {
+            p.textContent = mensaje;
+            p.classList.add('show');
+        }
+        const input = document.getElementById(campo);
+        if (input) input.classList.add('has-error');
+    }
+
+    function limpiarError(campo) {
+        const p = document.querySelector(`[data-error-for="${campo}"]`);
+        if (p) {
+            p.textContent = '';
+            p.classList.remove('show');
+        }
+        const input = document.getElementById(campo);
+        if (input) input.classList.remove('has-error');
+    }
+
+    function limpiarErroresPaso() {
+        $$('.error-msg').forEach((p) => { p.textContent = ''; p.classList.remove('show'); });
+        $$('.field').forEach((f) => f.classList.remove('has-error'));
+        $('#errorEnvio').classList.add('hidden');
+    }
+
+    /* ========================= Construcción dinámica ========================= */
+
+    function construirMontos() {
+        const cont = $('#montosContainer');
+        cont.innerHTML = '';
+
+        CONFIG.MONTOS.forEach((monto) => {
+            const label = document.createElement('label');
+            label.className = 'option block';
+            label.innerHTML = `
+                <input type="radio" name="monto" value="${monto}" />
+                <span class="option-box">
+                    <span class="option-dot"></span>
+                    <span class="font-semibold">Gs. ${formatoGs(monto)}</span>
+                </span>`;
+            cont.appendChild(label);
+        });
+
+        if (CONFIG.PERMITIR_OTRO_MONTO) {
+            const label = document.createElement('label');
+            label.className = 'option block';
+            label.innerHTML = `
+                <input type="radio" name="monto" value="otro" />
+                <span class="option-box">
+                    <span class="option-dot"></span>
+                    <span class="font-semibold">Otro monto</span>
+                </span>`;
+            cont.appendChild(label);
+        }
+
+        cont.addEventListener('change', (e) => {
+            if (e.target.name !== 'monto') return;
+            limpiarError('monto');
+            const esOtro = e.target.value === 'otro';
+            $('#montoOtroWrap').classList.toggle('hidden', !esOtro);
+            if (esOtro) $('#montoOtro').focus();
+        });
+    }
+
+    function construirCiudades() {
+        const sel = $('#ciudad');
+        sel.innerHTML = '<option value="">Seleccioná tu ciudad</option>';
+        CONFIG.CIUDADES.forEach((c) => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            sel.appendChild(opt);
+        });
+        const otra = document.createElement('option');
+        otra.value = '__otra__';
+        otra.textContent = 'Otra ciudad';
+        sel.appendChild(otra);
+
+        sel.addEventListener('change', () => {
+            limpiarError('ciudad');
+            const esOtra = sel.value === '__otra__';
+            $('#ciudadOtraWrap').classList.toggle('hidden', !esOtra);
+            if (esOtra) $('#ciudadOtra').focus();
+        });
+    }
+
+    /* ========================= Navegación entre pasos ========================= */
+
+    // Devuelve la secuencia de pasos vigente según lo respondido hasta ahora.
+    function secuenciaPasos() {
+        const pasos = ['informconf', 'ocupacion'];
+        if (state.ocupacion === REGLAS.ocupacionConDetalle) pasos.push('detalle_factura');
+        pasos.push('monto', 'contacto');
+        return pasos;
+    }
+
+    function actualizarProgreso() {
+        const pasos = secuenciaPasos();
+        const idx = pasos.indexOf(pasoActual);
+
+        if (pasoActual === 'exito' || idx === -1) {
+            $('#progressWrap').classList.add('hidden');
+            return;
+        }
+
+        $('#progressWrap').classList.remove('hidden');
+        const total = pasos.length;
+        const actual = idx + 1;
+        const pct = Math.round((actual / total) * 100);
+
+        $('#progressLabel').textContent = `Paso ${actual} de ${total}`;
+        $('#progressPct').textContent = `${pct}%`;
+        $('#progressBar').style.width = `${pct}%`;
+    }
+
+    function mostrarPaso(id, { guardarHistorial = true } = {}) {
+        if (guardarHistorial && pasoActual !== id) historial.push(pasoActual);
+
+        pasoActual = id;
+        limpiarErroresPaso();
+
+        $$('.step').forEach((s) => s.classList.toggle('is-active', s.dataset.step === id));
+
+        actualizarProgreso();
+
+        // Botón "Volver": visible salvo en el primer paso y en la pantalla final
+        $('#btnAtras').classList.toggle('hidden', historial.length === 0 || id === 'exito');
+
+        // El botón CONTINUAR desaparece en la pantalla de éxito
+        $('#navWrap').classList.toggle('hidden', id === 'exito');
+        $('#btnContinuarText').textContent = (id === 'contacto') ? 'ENVIAR SOLICITUD' : 'CONTINUAR';
+
+        // Scroll suave al inicio de la tarjeta y foco al título del paso
+        const activa = document.querySelector('.step.is-active');
+        if (activa) {
+            const h2 = activa.querySelector('h2');
+            if (h2) { h2.setAttribute('tabindex', '-1'); h2.focus({ preventScroll: true }); }
+            activa.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    function retroceder() {
+        if (!historial.length || flujoFinalizado) return;
+        const anterior = historial.pop();
+        mostrarPaso(anterior, { guardarHistorial: false });
+    }
+
+    /* ========================= Rechazo ========================= */
+
+    // REGLA CRÍTICA: en el rechazo NO se hace POST, no se envía nada al backend.
+    // Los datos quedan solo en memoria del navegador y el flujo termina.
+    function rechazar() {
+        flujoFinalizado = true;
+
+        // Borramos los datos personales en memoria por las dudas.
+        state.nombre = '';
+        state.apellido = '';
+        state.telefono = '';
+        state.ciudad = '';
+
+        $('#modal').classList.remove('hidden');
+        $('#modal').classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+        $('#waRechazo').focus();
+    }
+
+    /* ========================= Validaciones por paso ========================= */
+
+    const RE_SOLO_LETRAS = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' ]+$/;
+
+    function validarNombreCampo(id, etiqueta) {
+        const input = document.getElementById(id);
+        const valor = input.value.trim().replace(/\s+/g, ' ');
+
+        if (!valor) {
+            mostrarError(id, `Por favor, ingresá tu ${etiqueta} para continuar.`);
+            return null;
+        }
+        if (valor.length < 2) {
+            mostrarError(id, `Ingresá tu ${etiqueta} completo.`);
+            return null;
+        }
+        if (!RE_SOLO_LETRAS.test(valor)) {
+            mostrarError(id, `El ${etiqueta} solo puede tener letras y espacios.`);
+            return null;
+        }
+        return valor;
+    }
+
+    // Celulares de Paraguay: 9 dígitos que empiezan con 9 (ej. 981123456),
+    // aceptados también como 0981123456 o +595981123456.
+    function validarTelefono() {
+        const bruto = $('#telefono').value.replace(/\D/g, '');
+
+        if (!bruto) {
+            mostrarError('telefono', 'Por favor, ingresá tu número de WhatsApp.');
+            return null;
+        }
+
+        let nacional = bruto;
+        if (nacional.startsWith('595')) nacional = nacional.slice(3);
+        if (nacional.startsWith('0'))   nacional = nacional.slice(1);
+
+        if (!/^9\d{8}$/.test(nacional)) {
+            mostrarError('telefono', 'Revisá el número. Debe ser un celular paraguayo, ej: 0981 123456.');
+            return null;
+        }
+        return `595${nacional}`;
+    }
+
+    function validarPaso(id) {
+        limpiarErroresPaso();
+
+        if (id === 'informconf') {
+            const sel = document.querySelector('input[name="informconf"]:checked');
+            if (!sel) {
+                mostrarError('informconf', 'Por favor, elegí una opción para continuar.');
+                return false;
+            }
+            state.informconf = sel.value;
+            return true;
+        }
+
+        if (id === 'ocupacion') {
+            const sel = document.querySelector('input[name="ocupacion"]:checked');
+            if (!sel) {
+                mostrarError('ocupacion', 'Por favor, elegí una opción para continuar.');
+                return false;
+            }
+            state.ocupacion = sel.value;
+            // Si cambia de opción y ya no corresponde el paso 2.1, limpiamos el detalle.
+            if (state.ocupacion !== REGLAS.ocupacionConDetalle) state.detalle_factura = null;
+            return true;
+        }
+
+        if (id === 'detalle_factura') {
+            const sel = document.querySelector('input[name="detalle_factura"]:checked');
+            if (!sel) {
+                mostrarError('detalle_factura', 'Por favor, elegí una opción para continuar.');
+                return false;
+            }
+            state.detalle_factura = sel.value;
+            return true;
+        }
+
+        if (id === 'monto') {
+            const sel = document.querySelector('input[name="monto"]:checked');
+            if (!sel) {
+                mostrarError('monto', 'Por favor, elegí el monto que necesitás.');
+                return false;
+            }
+
+            if (sel.value === 'otro') {
+                const digitos = $('#montoOtro').value.replace(/\D/g, '');
+                const monto = parseInt(digitos, 10);
+                if (!digitos || isNaN(monto)) {
+                    mostrarError('monto', 'Escribí el monto que necesitás.');
+                    return false;
+                }
+                if (monto < CONFIG.MONTO_MINIMO || monto > CONFIG.MONTO_MAXIMO) {
+                    mostrarError('monto',
+                        `El monto debe estar entre Gs. ${formatoGs(CONFIG.MONTO_MINIMO)} y Gs. ${formatoGs(CONFIG.MONTO_MAXIMO)}.`);
+                    return false;
+                }
+                state.monto = monto;
+            } else {
+                state.monto = parseInt(sel.value, 10);
+            }
+            return true;
+        }
+
+        if (id === 'contacto') {
+            let ok = true;
+
+            const nombre = validarNombreCampo('nombre', 'nombre');
+            if (!nombre) ok = false;
+
+            const apellido = validarNombreCampo('apellido', 'apellido');
+            if (!apellido) ok = false;
+
+            const telefono = validarTelefono();
+            if (!telefono) ok = false;
+
+            let ciudad = $('#ciudad').value;
+            if (!ciudad) {
+                mostrarError('ciudad', 'Por favor, elegí tu ciudad para continuar.');
+                ok = false;
+            } else if (ciudad === '__otra__') {
+                const otra = $('#ciudadOtra').value.trim().replace(/\s+/g, ' ');
+                if (!otra) {
+                    mostrarError('ciudadOtra', 'Escribí el nombre de tu ciudad.');
+                    ok = false;
+                } else if (!RE_SOLO_LETRAS.test(otra)) {
+                    mostrarError('ciudadOtra', 'La ciudad solo puede tener letras y espacios.');
+                    ok = false;
+                } else {
+                    ciudad = otra;
+                }
+            }
+
+            if (!ok) {
+                // Llevamos el foco al primer campo con error
+                const primero = document.querySelector('.field.has-error');
+                if (primero) primero.focus();
+                return false;
+            }
+
+            state.nombre = nombre;
+            state.apellido = apellido;
+            state.telefono = telefono;
+            state.ciudad = ciudad;
+            return true;
+        }
+
+        return true;
+    }
+
+    /* ========================= Evaluación de elegibilidad ========================= */
+
+    // Devuelve true si el paso recién respondido descalifica al solicitante.
+    function provocaRechazo(id) {
+        if (id === 'informconf') {
+            return state.informconf === REGLAS.informconfRechaza;
+        }
+        if (id === 'ocupacion') {
+            return REGLAS.ocupacionesRechazadas.includes(state.ocupacion);
+        }
+        if (id === 'detalle_factura') {
+            return REGLAS.detallesRechazados.includes(state.detalle_factura);
+        }
+        return false;
+    }
+
+    function siguientePaso() {
+        const pasos = secuenciaPasos();
+        const idx = pasos.indexOf(pasoActual);
+        return pasos[idx + 1] || null;
+    }
+
+    /* ========================= Envío al backend ========================= */
+
+    function armarPayload() {
+        return {
+            nombre: state.nombre,
+            apellido: state.apellido,
+            telefono: state.telefono,             // normalizado: 595XXXXXXXXX
+            ciudad: state.ciudad,
+            tiene_informconf: state.informconf === 'si',
+            situacion_laboral: state.ocupacion,
+            detalle_actividad: state.detalle_factura,
+            tiene_ips: state.ocupacion === 'ips',
+            monto_solicitado: state.monto,
+            origen: 'web_formulario',
+        };
+    }
+
+    function setEnviando(activo) {
+        enviando = activo;
+        $('#btnContinuar').disabled = activo;
+        $('#btnSpinner').classList.toggle('hidden', !activo);
+        $('#btnContinuarText').textContent = activo ? 'Enviando...' : 'ENVIAR SOLICITUD';
+    }
+
+    async function enviarSolicitud() {
+        setEnviando(true);
+        $('#errorEnvio').classList.add('hidden');
+
+        try {
+            const resp = await fetch(CONFIG.API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(armarPayload()),
+            });
+
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+            flujoFinalizado = true;
+            historial = [];
+            mostrarPaso('exito', { guardarHistorial: false });
+        } catch (err) {
+            // Nunca mostramos el error técnico al usuario.
+            console.error('Error al enviar la solicitud:', err);
+            $('#errorEnvio').textContent =
+                'No pudimos registrar tu solicitud en este momento. Escribinos por WhatsApp y te ayudamos enseguida.';
+            $('#errorEnvio').classList.remove('hidden');
+        } finally {
+            setEnviando(false);
+        }
+    }
+
+    /* ========================= Listeners ========================= */
+
+    $('#solicitudForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (flujoFinalizado || enviando) return;
+
+        const id = pasoActual;
+        if (!validarPaso(id)) return;
+
+        // Filtro de elegibilidad: si rechaza, el flujo termina acá.
+        // No se hace ningún POST ni se envía dato personal alguno.
+        if (provocaRechazo(id)) {
+            rechazar();
+            return;
+        }
+
+        if (id === 'contacto') {
+            await enviarSolicitud();
+            return;
+        }
+
+        const siguiente = siguientePaso();
+        if (siguiente) mostrarPaso(siguiente);
+    });
+
+    $('#btnAtras').addEventListener('click', retroceder);
+
+    // Limpieza de errores al elegir una opción
+    $$('input[type="radio"]').forEach((r) => {
+        r.addEventListener('change', () => limpiarError(r.name));
+    });
+
+    // Los campos de texto limpian su error al escribir
+    ['nombre', 'apellido', 'telefono', 'ciudadOtra'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => limpiarError(id));
+    });
+
+    // Nombre y apellido: bloquear números en el momento
+    ['nombre', 'apellido', 'ciudadOtra'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', () => {
+            const limpio = el.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ' ]/g, '');
+            if (limpio !== el.value) el.value = limpio;
+        });
+    });
+
+    // Teléfono: solo dígitos y espacios
+    $('#telefono').addEventListener('input', (e) => {
+        const limpio = e.target.value.replace(/[^\d ]/g, '');
+        if (limpio !== e.target.value) e.target.value = limpio;
+    });
+
+    // Monto "otro": formateo con separador de miles mientras se escribe
+    $('#montoOtro').addEventListener('input', (e) => {
+        limpiarError('monto');
+        const digitos = e.target.value.replace(/\D/g, '');
+        e.target.value = digitos ? formatoGs(parseInt(digitos, 10)) : '';
+    });
+
+    // Enter en un campo de texto avanza de paso en lugar de romper el flujo
+    $('#solicitudForm').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+            e.preventDefault();
+            $('#btnContinuar').click();
+        }
+    });
+
+    /* ========================= Init ========================= */
+
+    (function init() {
+        construirMontos();
+        construirCiudades();
+
+        $('#waRechazo').href  = waLink(CONFIG.WA_MSG_RECHAZO);
+        $('#waExito').href    = waLink(CONFIG.WA_MSG_EXITO);
+        $('#waFlotante').href = waLink(CONFIG.WA_MSG_GENERAL);
+
+        $('#currentYear').textContent = new Date().getFullYear();
+
+        actualizarProgreso();
+    })();
+    </script>
+</body>
+</html>
